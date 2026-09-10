@@ -20,8 +20,8 @@ export default function Footer() {
         <div className="footer-nav">
           <span className="footer-label">Movendo</span>
           <Link href="#equipo">Equipe</Link>
-          <Link href="https://www.linkedin.com/company/movendo-latam/" target="_blank" rel="noreferrer">LinkedIn</Link>
-          <Link href="https://www.instagram.com/movendolatam/" target="_blank" rel="noreferrer">Instagram</Link>
+          <Link href="https://www.linkedin.com/company/movendo-latam/" target="_blank" rel="noreferrer noopener">LinkedIn <span className="visually-hidden">(abre em nova aba)</span></Link>
+          <Link href="https://www.instagram.com/movendolatam/" target="_blank" rel="noreferrer noopener">Instagram <span className="visually-hidden">(abre em nova aba)</span></Link>
         </div>
         <div className="footer-contact">
           <span className="footer-label">Fale conosco</span>

@@ -3,20 +3,58 @@
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navItems } from "@/app/page";
 import { ButtonLink } from "./ButtonLink";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      toggleRef.current?.focus();
+      return;
+    }
+
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
     };
+
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !menuRef.current) return;
+
+      const focusable = menuRef.current.querySelectorAll(
+        'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable.length) return;
+
+      const first = focusable[0] as HTMLElement;
+      const last = focusable[focusable.length - 1] as HTMLElement;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
     document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
+    document.addEventListener("keydown", trapFocus);
+
+    // Focus the first link inside the menu when it opens
+    const firstLink = menuRef.current?.querySelector("a[href]") as HTMLElement | null;
+    firstLink?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("keydown", trapFocus);
+    };
   }, [open]);
 
   return (
@@ -46,6 +84,7 @@ export default function SiteHeader() {
             Fale conosco
           </ButtonLink>
           <button
+            ref={toggleRef}
             type="button"
             className="menu-toggle"
             aria-label={open ? "Fechar menu" : "Abrir menu"}
@@ -58,7 +97,12 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      <div id="mobile-navigation" className={`mobile-nav ${open ? "is-open" : ""}`}>
+      <div
+        id="mobile-navigation"
+        ref={menuRef}
+        className={`mobile-nav ${open ? "is-open" : ""}`}
+        aria-hidden={!open}
+      >
         <nav aria-label="Navegação móvel">
           {navItems.map((item, index) => (
             <Link
